@@ -5,9 +5,9 @@ const { signToken } = require('../utils/auth');
 const resolvers = {
   Query: {
     me: async (parent, args,context) => {
+      console.log("query made");
       if(context.user){
-        const myUserData = await User.findOne({_id: context.user._id})
-        return myUserData
+        return User.findOne({_id: context.user._id});
       }
     throw new AuthenticationError('Please Log In');
     },
@@ -15,7 +15,7 @@ const resolvers = {
 
   Mutation: {
     login: async (parent, {email, password}) =>{
-      const user = await User.findOne(email);
+      const user = await User.findOne({email});
       if (!user) {
         return new AuthenticationError('Log In Unsuccessful, Please Check Creditials and Try Again');
       }
@@ -29,26 +29,29 @@ const resolvers = {
       return { token, user };
     },
 
-    addUser: async ( parent, args) =>{
-      const user = await User.create(args);
-      const token =signToken(user);
-      return{token, user}
+    addUser: async ( parent, {username,email,password}) =>{
+      console.log("ran add user");
+      const user = await User.create({username,email,password});
+      const token = signToken(user);
+      return{token, user};
     },
 
     saveBook: async (parent, {bookData}, context) => {
+      console.log(bookData);
+      console.log(context.user);
       if(context.user){
-        const updatedUser = await User.findOneAndUpdate(
+        const updateBook = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $push: { savedBooks: bookData } },
+          { $push: { savedBooks: {bookData} } },
           { new: true}
         );
-        return updatedUser;
+        return updateBook;
       }
 
       throw new AuthenticationError('Please Log In');
     },
 
-    deleteBook: async (parent,{ bookID }, context) => {
+    deleteBook: async (parent,{ bookId }, context) => {
       if (context.user){
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
