@@ -7,7 +7,8 @@ const resolvers = {
     me: async (parent, args,context) => {
       console.log("query made");
       if(context.user){
-        return User.findOne({_id: context.user._id});
+        const userData = await User.findOne({_id: context.user._id}).select('-__v -password');
+        return userData;
       }
     throw new AuthenticationError('Please Log In');
     },
@@ -30,19 +31,17 @@ const resolvers = {
     },
 
     addUser: async ( parent, {username,email,password}) =>{
-      console.log("ran add user");
       const user = await User.create({username,email,password});
       const token = signToken(user);
       return{token, user};
     },
 
-    saveBook: async (parent, {bookData}, context) => {
-      console.log(bookData);
-      console.log(context.user);
+    saveBook: async (parent, {bookData} , context) => {
+      console.log("save triggered");
       if(context.user){
         const updateBook = await User.findByIdAndUpdate(
           { _id: context.user._id },
-          { $push: { savedBooks: {bookData} } },
+          { $push: { savedBooks: bookData } },
           { new: true}
         );
         return updateBook;
@@ -51,11 +50,12 @@ const resolvers = {
       throw new AuthenticationError('Please Log In');
     },
 
-    deleteBook: async (parent,{ bookId }, context) => {
+    deleteBook: async (parent, {bookId} , context) => {
+      console.log('delete request made')
       if (context.user){
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: {bookId} } },
+          { $pull: { savedBooks: {...bookId} } },
           { new: true }
         );
       
