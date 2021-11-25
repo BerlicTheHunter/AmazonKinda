@@ -50,12 +50,14 @@ const resolvers = {
       throw new AuthenticationError('Please Log In');
     },
 
-    deleteBook: async (parent, {bookId} , context) => {
+    deleteBook: async (parent, { bookId } , context) => {
       console.log('delete request made')
+      console.log(context.user._id)
+      console.log(bookId)
       if (context.user){
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { savedBooks: {...bookId} } },
+          { $pull: { savedBooks: {bookId} } },
           { new: true }
         );
       

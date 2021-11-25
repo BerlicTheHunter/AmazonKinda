@@ -49,7 +49,7 @@ export const DELETE_BOOK = gql`
       username
       email
       savedBooks{
-        bookID
+        bookId
         authors
         image
         description

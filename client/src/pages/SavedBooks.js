@@ -22,10 +22,11 @@ const SavedBooks = () => {
     console.log({bookId});
     try {
       console.log('delete request tried')
-      const {data} = await deleteBook({
-        variables: {bookId: bookId}
+      const { data } = await deleteBook({
+        variables: { bookId },
       });
-
+    
+      console.log(data);
       removeBookId(bookId);
     } catch (err) {
       console.error(err);
